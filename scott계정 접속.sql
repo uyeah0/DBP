@@ -452,6 +452,7 @@ from emp
 where deptno = 20;
 
 -- 오라클의 날짜 포맷(형식) 조회
+-- ERROR
 select value 
 from NLS_SESSION_PARAMETERS
 where parameter = 'NLS_DATE_FORMAT';
@@ -459,6 +460,80 @@ where parameter = 'NLS_DATE_FORMAT';
 select sysdate
 from dual;
 
-ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
 -- 날짜 형식을 변경할 때
+ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
 commit;
+
+select sysdate from dual;
+
+select systimestamp from dual;
+
+
+--65
+select ename, hiredate, hiredate+3, hiredate+5/24
+from emp
+where deptno = 30;
+-- hiredate+3는 입사일자의 날짜에 3을 더한 결과
+-- hiredate+5는 입사일자의 시간에 5를 더한 결과
+
+-- 66page
+select ename, hiredate, sysdate, 
+    sysdate-hiredate "Total Days", -- 현재날짜- 입사일자 = 전체근무일수
+    TRUNC((sysdate-hiredate)/7,0) Weeks, -- 1주일이 7일이기 때문에 7로 나눔
+    ROUND(MOD((sysdate-hiredate),7),0) Days
+    -- MOD는 나머지 구하는 함수 7로 나누면 나머지가 0~6까지 출력
+    from emp
+    order by 4 desc; -- 컬럼 네번째 (sysdate-hiredate)를 대신 써도 됨
+    
+-- 66page
+select
+    EXTRACT(day from sysdate) 일자, -- 현재 날짜에서 일자를 반환함
+    EXTRACT(month from sysdate) 월, -- 현재 날짜에서 월을 반환함
+    EXTRACT(year from sysdate) 년도 -- 현재 날짜에서 년도를 반환함
+from dual;
+
+select 
+    SYSTIMESTAMP,
+    TO_CHAR(SYSTIMESTAMP, 'HH24') CH, -- 문자형식 24시간으로 표현하는데 현재시간 출력
+    EXTRACT(TIMEZONE_HOUR FROM SYSTIMESTAMP) ETZH, -- 대한민국의 타임존은 9시간
+    EXTRACT(HOUR FROM SYSTIMESTAMP) EH, -- 기존 systimestamp는 9를 뺀 수를 줌 , 11-9 (타임존시간) =2를 출력
+    EXTRACT(HOUR FROM CAST(SYSTIMESTAMP AS TIMESTAMP)) EHC -- 형변환(cast) systimestamp이 timestamp로 형변환
+    -- systimestamp를 timestamp형식으로 형변환 후에 시간을 출력하면 정상적인 시간 출력
+from dual;
+
+
+
+select 
+    SYSTIMESTAMP,
+    EXTRACT(HOUR FROM SYSTIMESTAMP) H1,
+    EXTRACT(HOUR FROM SYSTIMESTAMP) +
+    + EXTRACT(TIMEZONE_HOUR FROM SYSTIMESTAMP) H2
+from dual;
+
+select ename, hiredate,
+    EXTRACT(YEAR from hiredate) "year",
+    EXTRACT(MONTH from hiredate) "month",
+    EXTRACT(DAY from hiredate) "day"
+    from emp;
+    
+-- 69page
+select ename, hiredate, sysdate,
+    months_between(sysdate, hiredate) m_between,
+    -- 현재날짜에서 입사날짜까지의 개월수
+    trunc(months_between(sysdate, hiredate), 0) t_between
+    from emp
+    where deptno = 10
+    order by m_between desc;
+    
+select ename, hiredate, sysdate,
+    add_months(hiredate, 5) a_month -- 입사일자에서 5개월을 더한 결과 출력
+from emp
+where deptno IN(10,30) -- 부서번호가 10 또는 30인 데이터
+order by hiredate desc;
+    
+select ename, hiredate,
+    next_day(hiredate, 6) n_6, -- 입사일자 이후 돌아오는 금요일 날짜르 
+    next_day(hiredate, 7) n_7
+from emp
+where deptno = 10
+order by hiredate desc;
