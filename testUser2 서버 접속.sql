@@ -102,3 +102,47 @@ select ename || ' :' || ' 1 Year salary = ' || sal*12 Monthy from emp;
 select DISTINCT job from emp;
 
 select DISTINCT deptno, job from emp;
+
+-- Pseudo Column(의사 열)
+select rowid, rownum, ename, sal from emp;
+
+-- 행의 제한(WHERE)
+
+-- 비교연산자
+select empno, ename, job, sal 
+from emp 
+where job = 'MANAGER';
+
+select empno, ename, job, sal 
+from emp 
+where sal >= 3000;
+
+select ename, sal, deptno
+from emp
+where deptno != 30;
+
+select ename, job, sal, deptno
+from emp
+where sal BETWEEN 1300 AND 1700;
+
+select empno, ename, job, sal, hiredate 
+from emp
+where empno IN(7902,7788,7566);
+
+select ename, sal, job
+from emp
+where ename like '_A%';
+
+select ename, sal, job
+from emp
+where ename like '%A%';
+
+select empno, ename, job, sal, comm, deptno 
+from emp
+where comm is NULL;
+
+select empno, ename, job, sal, comm, deptno
+from emp
+where comm < NULL;
+
+-- 논리 연산자
