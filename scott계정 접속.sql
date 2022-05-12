@@ -537,3 +537,76 @@ select ename, hiredate,
 from emp
 where deptno = 10
 order by hiredate desc;
+
+
+
+select sal from emp;
+select avg(sal) from emp;
+
+-- 그룹함수
+-- pg92
+-- 예제1
+select MIN(ename), MAX(ename), MIN(hiredate), MAX(hiredate)
+from emp;
+
+select hiredate from emp
+order by hiredate;
+
+-- 예제2
+select AVG(sal), MAX(sal), MIN(sal), SUM(sal)
+from emp;
+
+-- 예제3
+select count(*), cl, count(comm) c2, avg(comm) c3, avg(NVL(comm, 0)) c4
+from emp;
+select * from emp; -- 행의 갯수 14개
+
+-- GROUP BY 절
+-- 예제1
+select deptno, count(*), TRUNC(avg(sal),1), min(sal), max(sal)
+from emp
+group by deptno; -- 부서번호 별로 그룹하여 해당 부서번호 갯수,
+-- 해당 부서번호의 평균, 해당 부서번호의 
+
+select sal from emp
+where deptno = 10
+order by sal;
+
+select deptno, count(*), TRUNC(avg(sal),1), min(sal), max(sal), suum(sal)
+from emp
+group by deptno 
+order by sum(sal) desc; -- order by 절에 그룹함수 사용 가능
+
+-- 예제 3
+select deptno, job, count(*), trunc(avg(sal)), sum(sal)
+from emp 
+group by job; -- 이경우는 오류
+-- **select 절에 사용된 컬럼은 반드시 group by 절에도 사용이 되어야함
+-- 그룹 함수는 select절에 사용(group by절에 없어도 됨)
+-- count(*)이 문장은 sql문장의 속도를 저하시킨다.
+
+-- 예제 4
+select job, deptno, count(*), trunc(avg(sal)), sum(sal)
+from emp 
+group by job, deptno; -- JOB과 DEPTNO를 묶은 것
+-- MAVAGER이고 DEPTNO가 20인 그룹
+-- select절에 사용된 컬럼 : job, deptno
+-- 반드시 group by절에 반드시 사용해야한다.
+
+select job,  count(*), trunc(avg(sal)), sum(sal)
+from emp 
+group by job, deptno; 
+
+
+-- having 절
+-- 예제1
+select deptno, count(*), sum(sal)
+from emp
+group by deptno
+having count(*) > 4; -- emp 테이블에 여러개의 중복된 부서번호가 
+-- 입력되어 있는데 부서번호별로 갯수가 4보다 큼
+
+select deptno, count(*), sum(sal)
+from emp
+having count(*) > 4
+group by deptno; -- 이 표현은 바람직하지 않다.
