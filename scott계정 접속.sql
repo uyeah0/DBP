@@ -610,3 +610,132 @@ select deptno, count(*), sum(sal)
 from emp
 having count(*) > 4
 group by deptno; -- 이 표현은 바람직하지 않다.
+
+-- 예제2
+select deptno, avg(sal), sum(sal)
+from emp
+group by deptno
+having max(sal) > 2900;
+
+-- 예제3
+select deptno, avg(sal), sum(sal)
+from emp
+having max(sal) > 2900
+group by deptno; -- 권장하지 않음
+
+-- 예제4
+select deptno, sum(sal)
+from emp
+group by deptno
+having sum(sal) > 10000 -- 부서별 합계가 10000보다 크고
+AND deptno IN(20, 30); -- 부서 번호가 20 또는 30번만 
+
+-- 예제5 // error
+select deptno, AVG(sal)
+from emp
+where job = 'CLERK' -- job이 'CLERK'이고
+group by deptno
+having AVG(sal) > 10000; -- 부서별 평균값이 1000보다 큰 경우
+
+-- 예제6
+select deptno, AVG(sal)
+from emp
+group by deptno
+having AVG(sal) > 10000 -- 부서별 평균값이 1000보다 큰 경우
+        AND job = 'CLERK';
+-- job 컬럼은 group by절에 없기 때문에
+
+-- 예제7
+select MAX(sum(sal)) -- 중첩은 1번만 사용 가능하다
+from emp
+group by deptno; -- 부서별로 그룹화 하여 부서별 합 중에서 
+-- 최대값을 출력한다
+
+-- 예제8
+select ename, hiredate, min(hiredate)
+from emp
+where deptno = 20; -- min()함수는 그룹함수이기 때문(오류발생)
+-- group by 절을 사용해야 한다.
+
+-- 예제9
+select 
+    LISTAGG(ename, ';') WITHIN GROUP (ORDER BY ename DESC) "Ename", -- LISTAGG(List agreegation): 그룹함수
+    LISTAGG(hiredate, ';') WITHIN GROUP (ORDER BY ename DESC) "hiredate",
+    MIN(hiredate) "Earliest"
+from emp
+where deptno = 20;
+
+select 
+    LISTAGG(ename, ';') WITHIN GROUP (ORDER BY ename DESC) "Ename", -- LISTAGG(List agreegation): 그룹함수
+    LISTAGG(hiredate, ';') WITHIN GROUP (ORDER BY hiredate DESC) "hiredate",
+    MIN(hiredate) "Earliest"
+from emp
+where deptno = 20;
+
+select 
+    LISTAGG(ename, '@') WITHIN GROUP (ORDER BY ename DESC) "Ename", -- LISTAGG(List agreegation): 그룹함수
+    LISTAGG(hiredate, '@') WITHIN GROUP (ORDER BY hiredate DESC) "hiredate",
+    MIN(hiredate) "Earliest"
+from emp
+where deptno = 20;
+
+-- 101page 
+-- ROLLUP 함수
+-- 예제1
+SELECT deptno, count(*), sum(sal)
+FROM emp
+GROUP BY ROLLUP(deptno); 
+-- 출력결과의 맨 마지막에 전체 합계가 출력
+
+--예제2
+select deptno, job, sum(sal)
+from emp
+group by rollup(deptno, job);
+
+
+--예제3
+select deptno, job, sum(sal)
+from emp
+group by rollup(job, deptno);
+
+--예제4
+select deptno, job, mgr, sum(sal)
+from emp
+group by rollup(deptno, job, mgr);
+
+-- CUBE 함수
+-- 104page
+-- 위에 합계 띄우기
+select deptno, job, sum(sal) 
+from emp
+group by cube(deptno, job);
+
+select deptno, job, sum(sal) 
+from emp
+group by cube(job, deptno);
+
+-- rollup()와 cube()함수(더심각)는 SQL 속도를 떨어뜨린다.
+
+-- 107page
+-- 예제1
+SELECT deptno, job, SUM(sal)
+FROM emp
+GROUP BY GROUPING SETS(deptno, job);
+
+-- 예제2
+SELECT deptno, Null job, SUM(sal) --1
+FROM emp
+GROUP BY deptno                   --end 1 deptno의 합
+UNION ALL -- union: 1,2 결합
+SELECT NULL deptno, job, SUM(sal) --2
+FROM emp 
+GROUP BY job;                     --end 2 job의 합
+
+
+-- JOIN
+select e.empno, e.deptno, e.sal, d.deptno, d.dname
+from emp e, dept d
+order by e.deptno; -- 14x4행 = 56행
+-- 카타시안(CARTESIAN PRODUCT)은 데이터를 복제(복사)할때 많이 사용된다. 
+select * from emp; -- 14행
+select * from dept; -- 4행
