@@ -844,3 +844,15 @@ select e.ename, e.sal, e.job, e.hiredate, e.comm
 fROM emp e, dept d, locations l
 where e.deptno = d.deptno AND d.loc_code = l.loc_code AND e.sal > 1500 AND l.city = 'DALLAS';
 
+-- NON-EQUI JOIN
+-- 121page
+-- 예제1
+select e.empno, e.ename, e.job, e.sal, s.grade, s.losal, s.hisal
+from salgrade s, emp e
+where e.sal >= s.losal AND e.sal <= s.hisal;
+
+-- 예제2
+select e.empno, e.ename, e.job, e.sal, s.grade, s.losal, s.hisal
+from salgrade s, emp e
+where e.sal between s.losal AND s.hisal;
+-- e.sal값이 s.losal보다 크거나 같고 s.hisal보다는 작거나 같을 때 true 발생
