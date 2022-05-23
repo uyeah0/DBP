@@ -739,3 +739,108 @@ order by e.deptno; -- 14x4행 = 56행
 -- 카타시안(CARTESIAN PRODUCT)은 데이터를 복제(복사)할때 많이 사용된다. 
 select * from emp; -- 14행
 select * from dept; -- 4행
+
+DROP TABLE EMP;
+DROP TABLE DEPT;
+DROP TABLE LOCATIONS;
+DROP TABLE SALGRADE;
+
+CREATE TABLE DEPT(
+    DEPTNO NUMBER(2) CONSTRAINT PK_DEPT PRIMARY KEY,
+	DNAME VARCHAR2(14) ,
+	LOC_CODE VARCHAR2(2) 
+);
+CREATE TABLE EMP(
+    EMPNO NUMBER(4) CONSTRAINT PK_EMP PRIMARY KEY,
+	ENAME VARCHAR2(10),
+	JOB VARCHAR2(9),
+	MGR NUMBER(4),
+	HIREDATE DATE,
+	SAL NUMBER(7,2),
+	COMM NUMBER(7,2),
+	DEPTNO NUMBER(2) CONSTRAINT FK_DEPTNO REFERENCES DEPT
+);
+
+CREATE TABLE SALGRADE( 
+    GRADE NUMBER,
+	LOSAL NUMBER,
+	HISAL NUMBER 
+);
+CREATE TABLE LOCATIONS (
+     LOC_CODE  CHAR(2) ,
+     CITY      VARCHAR2(12)
+) ;
+
+-- DEPT테이블에 데이터 삽입
+INSERT INTO DEPT VALUES(10,'ACCOUNTING','A1');
+INSERT INTO DEPT VALUES(20,'RESEARCH','B1');
+INSERT INTO DEPT VALUES(30,'SALES','C1');
+INSERT INTO DEPT VALUES(40,'OPERATIONS','A1');
+INSERT INTO DEPT VALUES(50,'INSA',NULL);
+
+-- EMP테이블에 데이터 삽입
+INSERT INTO EMP VALUES
+(7369,'SMITH','CLERK',7902,to_date('17-12-1980','dd-mm-yyyy'),800,NULL,20);
+INSERT INTO EMP VALUES
+(7499,'ALLEN','SALESMAN',7698,to_date('20-2-1981','dd-mm-yyyy'),1600,300,30);
+INSERT INTO EMP VALUES
+(7521,'WARD','SALESMAN',7698,to_date('22-2-1981','dd-mm-yyyy'),1250,500,30);
+INSERT INTO EMP VALUES
+(7566,'JONES','MANAGER',7839,to_date('2-4-1981','dd-mm-yyyy'),2975,NULL,20);
+INSERT INTO EMP VALUES
+(7654,'MARTIN','SALESMAN',7698,to_date('28-9-1981','dd-mm-yyyy'),1250,1400,30);
+INSERT INTO EMP VALUES
+(7698,'BLAKE','MANAGER',7839,to_date('1-5-1981','dd-mm-yyyy'),2850,NULL,30);
+INSERT INTO EMP VALUES
+(7782,'CLARK','MANAGER',7839,to_date('9-6-1981','dd-mm-yyyy'),2450,NULL,10);
+INSERT INTO EMP VALUES
+(7788,'SCOTT','ANALYST',7566,to_date('09-12-1982','dd-mm-yyyy'),3000,NULL,20);
+INSERT INTO EMP VALUES
+(7839,'KING','PRESIDENT',NULL,to_date('17-11-1981','dd-mm-yyyy'),5000,NULL,10);
+INSERT INTO EMP VALUES
+(7844,'TURNER','SALESMAN',7698,to_date('8-9-1981','dd-mm-yyyy'),1500,0,30);
+INSERT INTO EMP VALUES
+(7876,'ADAMS','CLERK',7788,to_date('12-1-1983','dd-mm-yyyy'),1100,NULL,20);
+INSERT INTO EMP VALUES
+(7900,'JAMES','CLERK',7698,to_date('3-12-1981','dd-mm-yyyy'),950,NULL,30);
+INSERT INTO EMP VALUES
+(7902,'FORD','ANALYST',7566,to_date('3-12-1981','dd-mm-yyyy'),3000,NULL,20);
+INSERT INTO EMP VALUES
+(7934,'MILLER','CLERK',7782,to_date('23-1-1982','dd-mm-yyyy'),1300,NULL,10);
+
+-- SALGRADE테이블에 데이터 삽입
+INSERT INTO SALGRADE VALUES (1,700,1200);
+INSERT INTO SALGRADE VALUES (2,1201,1400);
+INSERT INTO SALGRADE VALUES (3,1401,2000);
+INSERT INTO SALGRADE VALUES (4,2001,3000);
+INSERT INTO SALGRADE VALUES (5,3001,9999);
+
+-- LOCATIONS 테이블에 데이터 삽입
+INSERT INTO LOCATIONS VALUES ('A1','SEOUL');
+INSERT INTO LOCATIONS VALUES ('B1','DALLAS');
+INSERT INTO LOCATIONS VALUES ('C1','CHICAGO');
+INSERT INTO LOCATIONS VALUES ('D1','BOSTON');
+commit;
+
+-- 119page
+-- 예제1
+select e.empno, e.ename, e.deptno ed, d.deptno dd, d.dname
+from dept d, emp e
+where d.deptno = e.deptno
+order by 1;
+
+-- 예제2
+select e.empno, e.ename, e.sal, d.dname, d.loc_code
+from dept d, emp e
+where d.deptno = e.deptno and e.job = 'SALESMAN';
+
+-- 예제3
+select e.ename, d.dname, d.loc_code dl, l.loc_code ll, e.sal, l.city
+fROM emp e, dept d, locations l
+where e.deptno = d.deptno AND d.loc_code = l.loc_code;
+
+-- 예제4
+select e.ename, e.sal, e.job, e.hiredate, e.comm
+fROM emp e, dept d, locations l
+where e.deptno = d.deptno AND d.loc_code = l.loc_code AND e.sal > 1500 AND l.city = 'DALLAS';
+
