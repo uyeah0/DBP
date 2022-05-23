@@ -856,3 +856,23 @@ select e.empno, e.ename, e.job, e.sal, s.grade, s.losal, s.hisal
 from salgrade s, emp e
 where e.sal between s.losal AND s.hisal;
 -- e.sal값이 s.losal보다 크거나 같고 s.hisal보다는 작거나 같을 때 true 발생
+
+-- OUTER JOIN
+-- 122page
+-- 예제1
+select e.empno, e.ename, e.job, e.deptno, d.deptno, d.dname
+from dept d, emp e
+where d.deptno = e.deptno(+);
+-- dept 테이블이 기준 테이블이고, emp 테이블에서 deptno 값이 데이터가
+-- 부족한 테이블 쪽에 '+'기호를 붙인다.
+
+select e.empno, e.ename, e.job, e.deptno, d.deptno, d.dname
+from dept d, emp e
+where d.deptno(+) = e.deptno;
+-- 위의 경우는 EQUI JOIN과 같은 결과이다.
+
+-- 예제2
+SELECT d.deptno, d.dname, l.city
+from dept d, locations l
+where d.loc_code = l.loc_code(+);
+-- dept테이블이 기준 테이블, locations테이블은 값이 일치하는 것만 출력('+') 기호 붙임
