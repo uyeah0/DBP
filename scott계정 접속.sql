@@ -73,6 +73,89 @@ INSERT INTO SALGRADE VALUES (4,2001,3000);
 INSERT INTO SALGRADE VALUES (5,3001,9999);
 
 
+-- Join을 위한 예제
+DROP TABLE EMP;
+DROP TABLE DEPT;
+DROP TABLE LOCATIONS;
+DROP TABLE SALGRADE;
+
+CREATE TABLE DEPT(
+    DEPTNO NUMBER(2) CONSTRAINT PK_DEPT PRIMARY KEY,
+	DNAME VARCHAR2(14) ,
+	LOC_CODE VARCHAR2(2) 
+);
+CREATE TABLE EMP(
+    EMPNO NUMBER(4) CONSTRAINT PK_EMP PRIMARY KEY,
+	ENAME VARCHAR2(10),
+	JOB VARCHAR2(9),
+	MGR NUMBER(4),
+	HIREDATE DATE,
+	SAL NUMBER(7,2),
+	COMM NUMBER(7,2),
+	DEPTNO NUMBER(2) CONSTRAINT FK_DEPTNO REFERENCES DEPT
+);
+
+CREATE TABLE SALGRADE( 
+    GRADE NUMBER,
+	LOSAL NUMBER,
+	HISAL NUMBER 
+);
+CREATE TABLE LOCATIONS (
+     LOC_CODE  CHAR(2) ,
+     CITY      VARCHAR2(12)
+) ;
+
+-- DEPT테이블에 데이터 삽입
+INSERT INTO DEPT VALUES(10,'ACCOUNTING','A1');
+INSERT INTO DEPT VALUES(20,'RESEARCH','B1');
+INSERT INTO DEPT VALUES(30,'SALES','C1');
+INSERT INTO DEPT VALUES(40,'OPERATIONS','A1');
+INSERT INTO DEPT VALUES(50,'INSA',NULL);
+
+-- EMP테이블에 데이터 삽입
+INSERT INTO EMP VALUES
+(7369,'SMITH','CLERK',7902,to_date('17-12-1980','dd-mm-yyyy'),800,NULL,20);
+INSERT INTO EMP VALUES
+(7499,'ALLEN','SALESMAN',7698,to_date('20-2-1981','dd-mm-yyyy'),1600,300,30);
+INSERT INTO EMP VALUES
+(7521,'WARD','SALESMAN',7698,to_date('22-2-1981','dd-mm-yyyy'),1250,500,30);
+INSERT INTO EMP VALUES
+(7566,'JONES','MANAGER',7839,to_date('2-4-1981','dd-mm-yyyy'),2975,NULL,20);
+INSERT INTO EMP VALUES
+(7654,'MARTIN','SALESMAN',7698,to_date('28-9-1981','dd-mm-yyyy'),1250,1400,30);
+INSERT INTO EMP VALUES
+(7698,'BLAKE','MANAGER',7839,to_date('1-5-1981','dd-mm-yyyy'),2850,NULL,30);
+INSERT INTO EMP VALUES
+(7782,'CLARK','MANAGER',7839,to_date('9-6-1981','dd-mm-yyyy'),2450,NULL,10);
+INSERT INTO EMP VALUES
+(7788,'SCOTT','ANALYST',7566,to_date('09-12-1982','dd-mm-yyyy'),3000,NULL,20);
+INSERT INTO EMP VALUES
+(7839,'KING','PRESIDENT',NULL,to_date('17-11-1981','dd-mm-yyyy'),5000,NULL,10);
+INSERT INTO EMP VALUES
+(7844,'TURNER','SALESMAN',7698,to_date('8-9-1981','dd-mm-yyyy'),1500,0,30);
+INSERT INTO EMP VALUES
+(7876,'ADAMS','CLERK',7788,to_date('12-1-1983','dd-mm-yyyy'),1100,NULL,20);
+INSERT INTO EMP VALUES
+(7900,'JAMES','CLERK',7698,to_date('3-12-1981','dd-mm-yyyy'),950,NULL,30);
+INSERT INTO EMP VALUES
+(7902,'FORD','ANALYST',7566,to_date('3-12-1981','dd-mm-yyyy'),3000,NULL,20);
+INSERT INTO EMP VALUES
+(7934,'MILLER','CLERK',7782,to_date('23-1-1982','dd-mm-yyyy'),1300,NULL,10);
+
+-- SALGRADE테이블에 데이터 삽입
+INSERT INTO SALGRADE VALUES (1,700,1200);
+INSERT INTO SALGRADE VALUES (2,1201,1400);
+INSERT INTO SALGRADE VALUES (3,1401,2000);
+INSERT INTO SALGRADE VALUES (4,2001,3000);
+INSERT INTO SALGRADE VALUES (5,3001,9999);
+
+-- LOCATIONS 테이블에 데이터 삽입
+INSERT INTO LOCATIONS VALUES ('A1','SEOUL');
+INSERT INTO LOCATIONS VALUES ('B1','DALLAS');
+INSERT INTO LOCATIONS VALUES ('C1','CHICAGO');
+INSERT INTO LOCATIONS VALUES ('D1','BOSTON');
+commit;
+
 select * from emp; -- emp 테이블에 있는 모든 컬럼을 화면에 출력하시오. 
 
 select empno, ename, job, mgr, hiredate, sal, comm, deptno 
@@ -876,3 +959,230 @@ SELECT d.deptno, d.dname, l.city
 from dept d, locations l
 where d.loc_code = l.loc_code(+);
 -- dept테이블이 기준 테이블, locations테이블은 값이 일치하는 것만 출력('+') 기호 붙임
+
+-- 124page
+-- 예제3
+select d.deptno, d.dname, l.loc_code, l.city
+from dept d, locations l
+where d.loc_code(+) = l.loc_code;
+
+-- 예제4
+select d.deptno, d.dname, l.loc_code, l.city
+from dept d, locations l
+where d.loc_code(+) = l.loc_code(+);
+-- 오류 발생. 오라클에서는 FULL OUTER JOIN은 없음
+
+-- 예제5
+SELECT e.ename, e.sal, e.deptno, d.deptno, d.dname
+from emp e, dept d
+where e.deptno(+) = d.deptno
+and e.sal > 2000;
+-- OUTER JOIN의 효력이 상실됨
+
+-- 예제6
+SELECT e.ename, e.sal, e.deptno, d.deptno, d.dname
+FROM emp e, dept d
+WHERE e.deptno(+) = d.deptno
+AND e.sal(+) > 2000;
+
+-- SELF JOIN
+-- 126page 
+-- 예제1
+select e.empno 사원번호, e.ename 사원이름, m.empno 관리자사번, m.ename 관리자이름
+from emp e, emp m
+where e.mgr = m.empno
+order by 1;
+
+-- 예제2
+SELECT W.ENAME || '관리자는 ' || NVL( M.ENAME, '미정') AS "관리자 정보"
+FROM EMP W, EMP M
+WHERE W.MGR = M.EMPNO
+ORDER BY 1;
+-- 모든 사원을 출력하겠다. 모든 사원이 관리자가 있는 것은 아니다
+-- 회사에 '회장'의 관리자는 없기 때문에 null로 설정되어 있다.
+
+-- CROSS JOIN
+-- ERROR
+SELECT e.ename, d.dname
+FROM emp e CR0SS JOIN dept d;
+
+-- NATURAL JOIN
+-- 예제1
+SELECT e.ename, e.deptno, d.deptno, d.dname
+FROM emp e, dept d
+where e.deptno = d.deptno;
+
+SELECT e.ename, deptno, d.dname 
+-- EMP 테이블과 DEPT 테이블의 공통컬럼인 deptno는 
+-- 테이블 이름 또는 별칭을 사용하면 오류 발생
+FROM emp e NATURAL JOIN dept d;
+
+-- 예제2
+SELECT d.deptno, d.dname, loc_code, l.city
+FROM dept d NATURAL JOIN locations l
+WHERE d.deptno IN(10,30);
+
+-- 예제3
+select e.ename, e.sal, deptno, loc_code, d.dname, l.city
+from emp e NATURAL JOIN dept d NATURAL JOIN locations l -- EQUI join이고
+order by 1;
+-- emp 테이블과 dept테이블의 동일한 컬럼을 기준으로 EQUI 조인, 
+-- DEPT테이블과 location테이블의 동일한 컬럼을 기준으로 EQUI 조인,
+-- 동일한 컬럼은(deptno, loc_code)은 select 절에서 생략이 가능하다.
+
+-- USING JOIN
+-- 예제1
+SELECT e.ename, deptno, d.dname
+from emp e JOIN dept d USING(deptno)
+order by e.ename desc;
+
+-- 예제2
+SELECT d.deptno, d.dname, loc_code, l.city
+from dept d JOIN locations l USING(loc_code)
+where d.deptno IN(10,30);
+
+-- 예제3
+SELECT e.ename, d.dname, l.city
+from emp e JOIN dept d USING(deptno) JOIN locations l USING(loc_code);
+
+-- ON JOIN
+select e.ename 사원명, e.sal 사원급여, m.ename 매니저명, m.sal 매니저급여
+from emp e JOIN emp m ON(e.mgr = m.empno);
+
+-- 예제3
+select e.ename, d.dname, l.city
+from emp e JOIN dept d ON(e.deptno = d.deptno)
+        JOIN locations l ON(d.loc_code=l.loc_code)
+where e.ename NOT LIKE '%A%'; -- 이름에 'A'문자가 없는 
+
+-- ANSI OUTER JOIN
+-- 예제1
+SELECT d.dname, d.loc_code, l.loc_code, l.city
+FROM dept d LEFT OUTER JOIN locations l;
+
+-- 예제3 --error
+select d.dname, d.loc_code, l.loc_code, l.city
+from dept d FUUL OUTER JOIN locations l ON(d.loc_code=l.loc_code);
+
+
+-- 서브쿼리
+-- 156page 
+-- 예제
+select job
+from emp
+where empno = 7369;
+
+
+select ename, job
+from emp
+where job = 'CLERK';
+
+select ename, job
+from emp
+where job = (select job -- 사원번호가 7369인 사원의 job을 출력
+            from emp
+            where empno = 7369);
+-- 메인쿼리에서는 서브쿼리의 결과에 따라 메인 결과가 달라진다.
+
+-- 157page
+-- 예제1
+-- 1) 7566사번의 급여를 출력하는 문장
+select sal
+from emp
+where empno = 7566;
+-- 2) 2975보다 높은 사람 출력하는 문장
+select ename, sal
+from emp 
+where sal > 2975;
+
+-- 결과
+select ename, sal
+from emp 
+where sal > (select sal
+                from emp
+                where empno = 7566);
+
+-- 예제2
+-- 7521사번의 업무(job)를 출력하는 문장 작성
+select job
+from emp
+where empno = 7521; -- 'salesman'
+
+--7934번의 급여 출력하는 문장
+select sal
+from emp
+where empno = 7934; -- 급여 1300
+
+-- 메인 쿼리 작성
+select empno, ename, job, hiredate, sal
+from emp
+where job = 'SALESMAN';
+
+select empno, ename, job, hiredate, sal
+from emp
+where sal > (select sal
+            from emp
+            where empno = 7934);
+            
+-- 예제3
+-- 급여의 최대값
+select max(sal)
+from emp; -- 5000원
+
+select ename, deptno, sal, hiredate
+from emp
+where sal = 5000;
+
+-- 메인쿼리
+select ename, deptno, sal, hiredate
+from emp 
+where sal = max(sal); -- 오류발생
+-- max()
+
+-- 예제4
+-- 평균을 출력
+select avg(sal)
+from emp;
+
+-- 메인쿼리
+select empno, ename, job, sal, deptno
+from emp
+where sal < 2073; -- 오류 발생
+
+select empno, ename, job, sal, deptno
+from emp
+where sal < (select avg(sal)
+            from emp); 
+            
+-- 예제5
+select min(sal)
+from emp
+where deptno = 20;
+
+-- 메인쿼리
+select deptno, min(sal)
+from emp
+Group by deptno 
+having min(sal) > 800;
+
+select deptno, min(sal)
+from emp
+Group by deptno 
+having min(sal) > (select min(sal)
+                    from emp
+                    where deptno = 20);
+
+-- 다중행 서브쿼리                    
+-- 159page
+-- 예제1
+select empno, ename, sal, deptno
+from emp
+where sal = (select max(sal)
+            from emp
+            group by deptno); -- 오류발생한다. 비교연산자 '='는 양쪽 모두 1개 값을
+            --
+            
+select max(sal)
+from emp
+group by deptno;
+
